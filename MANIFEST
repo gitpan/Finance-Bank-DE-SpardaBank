@@ -4,4 +4,7 @@ README
 Todo
 lib/Finance/Bank/DE/SpardaBank.pm
 t/001_load.t
+test/statement_test.pl
+test/transfer_test.pl
+test/saldo_test.pl
 Makefile.PL

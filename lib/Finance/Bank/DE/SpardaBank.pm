@@ -7,11 +7,11 @@ Finance::Bank::DE::SpardaBank->mk_accessors(qw(BASE_URL BLZ CUSTOMER_ID PASSWORD
 use WWW::Mechanize;
 use HTML::TreeBuilder;
 use Text::CSV_XS;
-use Encode;
+#use Encode;
 
 $|++;
 
-$VERSION = "0.04";
+$VERSION = "0.05";
 
 sub Version { 
     return $VERSION;
@@ -25,7 +25,7 @@ sub new {
 		  CUSTOMER_ID => "demo",     # Demo Login
 		  PASSWORD => "",            # Demo does not require a password
 		  ACCOUNT => "2777770",      # Demo Account Number (Kontonummer)
-		  AGENT_TYPE => "Internet Explorer 6",
+		  AGENT_TYPE => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1) ",
 		  , @_);
 
     if ($values{'CUSTOMER_ID'} ne "demo" && $values{'ACCOUNT'} eq "2777770") {
@@ -89,8 +89,9 @@ sub saldo {
     foreach my $node (@input) {
 	@kids = $node->content_list();
 	if ($node->attr('class') && $node->attr('class') =~ m/fieldbackground/i) {
-	    $kids[2]->as_text =~ m/(\d+,\d{2})/ig;
+	    $kids[2]->as_text =~ m/([\d|\.]+,\d{2})/ig;
 	    $saldo = $1;
+	    $saldo =~ s/\.//;
 	    $saldo =~ tr/,/\./;
 	}
     }
@@ -125,6 +126,68 @@ sub statement {
     my $content = $agent->content();
     my $csv_content = $self->_parse_csv($content);
     return $csv_content;
+}
+
+
+
+sub transfer {
+    my $self = shift;
+    my %values = (
+                  SENDER_ACCOUNT => $self->ACCOUNT(),
+		  RECEIVER_NAME => "",
+		  RECEIVER_ACCOUNT => "",
+		  RECEIVER_BLZ => "",
+		  RECEIVER_SAVE => "false",
+		  COMMENT_1 => "",
+		  COMMENT_2 => "",
+		  AMOUNT => "0.00",
+		  TAN => "",
+                  , @_);
+
+    my $agent = $self->AGENT();
+    my $url = $self->BASE_URL();
+
+    $agent->get($url . "ueberweisung_per_heute_neu.do");
+
+
+    ( $values{'AMOUNT_EURO'}, $values{'AMOUNT_CENT'} ) =  split (/\.|,/, $values{'AMOUNT'});
+    $values{'AMOUNT_CENT'} = sprintf("%02d", $values{'AMOUNT_CENT'});
+   
+    $agent->field("auftraggeberKontonummer", $values{'SENDER_ACCOUNT'});
+
+    $agent->field("empfaengerName", $values{'RECEIVER_NAME'});
+#   $agent->field("empfaengerDatenSpeichern", $values{'RECEIVER_SAVE'}); # waiting for WWW::Mechanize support
+    $agent->field("empfaengerBankleitzahl", $values{'RECEIVER_BLZ'});
+    $agent->field("empfaengerKontonummer", $values{'RECEIVER_ACCOUNT'});
+
+    $agent->field("betragEuro", $values{'AMOUNT_EURO'});
+    $agent->field("betragCent", $values{'AMOUNT_CENT'});
+
+    $agent->field("verwendungszweck1", $values{'COMMENT_1'});
+    $agent->field("verwendungszweck2", $values{'COMMENT_2'});
+
+    $agent->click("btnNeuSpeichern");
+
+# sure it's right ...
+
+    $agent->field("tan", $values{'TAN'});
+    $agent->click("btnBestaetigen");
+
+# lazy error checking
+    
+#    print $agent->content();
+
+    if ($agent->content() =~ m|<span class="error">(.*)30017(.*)</span>|) {
+	$agent->content() =~ m|<span class="error">(.*?)</span>|;
+	my $error = $1;
+	print "ERROR: $error";
+	return (0,0);
+    }
+
+    else {
+	  (1,$agent->content());  
+    }
+
 }
 
 
@@ -176,10 +239,14 @@ sub _parse_csv {
 	### Transactions ###########################
 
 	if ($line_count > 12 && $line_count <= $#lines) {
-	    my $row = $line_count - 12;
+	    my $row = $line_count - 13;
 	    $data{"TRANSACTION"}[$row]{"BUCHUNGSTAG"} = $columns[0];
 	    $data{"TRANSACTION"}[$row]{"WERTSTELLUNGSTAG"} = $columns[1];
 	    $data{"TRANSACTION"}[$row]{"VERWENDUNGSZWECK"} = $columns[2];
+
+	    $columns[3] =~ s/\.//;
+	    $columns[3] =~ s/,/\./;
+
 	    $data{"TRANSACTION"}[$row]{"UMSATZ"} = $columns[3];
 	    $data{"TRANSACTION"}[$row]{"WAEHRUNG"} = $columns[4];
 	    $data{"TRANSACTION"}[$row]{"NOT_YET_FINISHED"} = $columns[5] if 
@@ -295,6 +362,8 @@ START_DATE and END_DATE only).
                                  START_DATE => "10.04.2003",
                                  END_DATE => "02.05.2003",
 			    );
+
+=head2 transfer()
 
 =head2 logout()
 
