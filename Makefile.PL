@@ -1,6 +1,7 @@
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+
+my $have_io_socket_ssl = eval { require IO::Socket::SSL; 1 };
+
 WriteMakefile(
     NAME         => 'Finance::Bank::DE::SpardaBank',
     VERSION_FROM => 'lib/Finance/Bank/DE/SpardaBank.pm', # finds $VERSION
@@ -11,10 +12,11 @@ WriteMakefile(
 	"Class::Accessor" => 0,
 	"HTML::TreeBuilder" => 0,
 	"Text::CSV_XS" => 0,
-	"Encode" => 0,
 	"base" => 0,
-	
-    },	      
+	$have_io_socket_ssl ? () : (
+				    'Crypt::SSLeay'=> 0,
+				    ),
+	},	      
 
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM => 'lib/Finance/Bank/DE/SpardaBank.pm', # retrieve abstract from module

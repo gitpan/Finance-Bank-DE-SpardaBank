@@ -11,7 +11,7 @@ use Text::CSV_XS;
 
 $|++;
 
-$VERSION = "0.05";
+$VERSION = "0.06";
 
 sub Version { 
     return $VERSION;
@@ -111,7 +111,8 @@ sub statement {
 
     my $agent = $self->AGENT();
 
-    binmode(STDOUT, ":encoding(iso-8859-15)");
+#   If you've problems with your environmet settings activate this and "use encodings"
+#   binmode(STDOUT, ":encoding(iso-8859-15)");
 
     $agent->field("kontonummer", $values{'ACCOUNT'});
     $agent->field("zeitraum", $values{'TIMEFRAME'});
@@ -302,6 +303,9 @@ the source of this module yourself to reassure yourself that I am not
 doing anything untoward with your banking data. This software is useful
 to me, but is provided under B<NO GUARANTEE>, explicit or implied.
 
+You can find some basic test scripts for manual testing against the demo-banking
+accounts within the directory "test" in the source directry.
+
 =head1 METHODS
 
 =head2 new(%values) 
@@ -401,6 +405,13 @@ L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Finance-Bank-DE-SpardaBank>
 Support currently available via eMail to the author.
 
 =head1 HISTORY
+
+0.06 Sat Jun 07 20:00:00 2003
+        - improved Makefile to check for SSL support in LWP
+
+0.05 Sat Jun 07 15:00:00 2003
+        - added alpha version of the transaction method
+        - added 3 test scripts
 
 0.04 Mon May 27 15:00:00 2003
         - another try to fix POD :-)
