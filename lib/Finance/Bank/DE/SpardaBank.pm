@@ -11,7 +11,7 @@ use Encode;
 
 $|++;
 
-$VERSION = "0.03";
+$VERSION = "0.04";
 
 sub Version { 
     return $VERSION;
@@ -242,7 +242,7 @@ to me, but is provided under B<NO GUARANTEE>, explicit or implied.
 This constructor will set the default values and/or user provided values for
 connection and authentication.
 
-my $account = Finance::Bank::DE::SpardaBank->new (
+    my $account = Finance::Bank::DE::SpardaBank->new (
                   BASE_URL => "https://www.bankingonline.de/sparda-banking/view/",
                   BLZ => "70090500",        
                   CUSTOMER_ID => "demo",    
@@ -256,7 +256,7 @@ If you don't provide any values the module will automatically use the demo accou
 CUSTOMER_ID is your "Kundennummer" and ACCOUNT is the "Kontonummer" 
 (if you have only one account you can skip that)
 
-=head2 connect(%asda)
+=head2 connect()
 
 This method will create the user agent and connect to the online banking website.
 Also this (done by WWW::Mechanize) automagically handles the session-id handling.
@@ -290,7 +290,7 @@ You can specify the timeframe of the statement by passing different arguments:
 The value of TIMEFRAME can be "1" (last day only), "30" (last 30 days only), "alle" (all possible) or "variable" (between
 START_DATE and END_DATE only).
 
- $account->statement(
+    $account->statement(
                                  TIMEFRAME => "variabel",
                                  START_DATE => "10.04.2003",
                                  END_DATE => "02.05.2003",
@@ -333,15 +333,18 @@ Support currently available via eMail to the author.
 
 =head1 HISTORY
 
+0.04 Mon May 27 15:00:00 2003
+        - another try to fix POD :-)
+
 0.03 Sun May 04 15:30:01 2003
-	- Documentation fixes (thanks castrox :-))
-	- Usability enhancements
+        - Documentation fixes (thanks castrox :-))
+        - Usability enhancements
 
 0.02 Sat May 03 16:30:00 2003
-	- first public CPAN release
+        - first public CPAN release
 
 0.01 Sat Apr 19 02:22:15 2003
-	- original version;
+        - original version;
 
 =head1 CREDITS
 
@@ -354,10 +357,23 @@ Support currently available via eMail to the author.
 =head1 AUTHOR
 
  Roland Moriz
- rmoriz@cpan.org && roland@moriz.de
+ rmoriz at cpan dot org / roland at moriz dot de
  http://www.roland-moriz.de/
 
+=begin HTML
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_xclick">
+<input type="hidden" name="business" value="roland@moriz.de">
+<input type="hidden" name="item_name" value="Roland Moriz's Open Source Activities">
+<input type="hidden" name="no_note" value="1">
+<input type="hidden" name="currency_code" value="EUR">
+<input type="hidden" name="tax" value="0">
+<input type="image" src="https://www.paypal.com/images/x-click-but21.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
+
+=end HTML
+
 Disclaimer stolen from Simon Cozens' Finance::Bank::LloydsTSB without asking for permission %-)
+
 
 =head1 COPYRIGHT
 
