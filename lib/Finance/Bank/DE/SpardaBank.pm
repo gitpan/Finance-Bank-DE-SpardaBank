@@ -4,7 +4,7 @@ use strict;
 use vars qw($VERSION);
 use base qw(Class::Accessor);
 Finance::Bank::DE::SpardaBank->mk_accessors(qw(BASE_URL BLZ CUSTOMER_ID PASSWORD AGENT_TYPE AGENT ACCOUNT));
-use Data::Dumper;
+#use Data::Dumper;
 use WWW::Mechanize;
 use HTML::TreeBuilder;
 use Text::CSV_XS;
@@ -12,7 +12,7 @@ use Encode;
 
 $|++;
 
-$VERSION = "0.01";
+$VERSION = "0.02";
 
 sub Version { 
     return $VERSION;
@@ -334,6 +334,9 @@ L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Finance-Bank-DE-SpardaBank>
 Support currently available via eMail to the author.
 
 =head1 HISTORY
+
+0.02 Sat May 03 16:30:00 2003
+	- first public CPAN release
 
 0.01 Sat Apr 19 02:22:15 2003
 	- original version;
